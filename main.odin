@@ -1,12 +1,10 @@
 package main
 
-// Dependencies
 import "core:c"
 import "core:strconv"
 import "core:strings"
 import rl "vendor:raylib"
 
-// Permutations
 stack: [10]int
 N :: 3
 perms: [dynamic]cstring
@@ -14,7 +12,8 @@ perms: [dynamic]cstring
 ret_perm :: proc(k: int) -> cstring {
     tmp: string = ""
     for i := 1; i <= N; i += 1 {
-        tmp = strings.concatenate({tmp, strconv.itoa([]u8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stack[i])})
+        buf: [1]byte // Only one byte becase we are working with digits (0 <= k <= 9)
+        tmp = strings.concatenate({tmp, strconv.itoa(buf[:], stack[i])})
     }
     return strings.clone_to_cstring(tmp)
 }
@@ -33,7 +32,6 @@ valid :: proc(k: int) -> bool {
 }
 
 back :: proc(k: int) {
-
     for i := 1; i <= N; i += 1 {
         stack[k] = i;
         if valid(k) {
@@ -45,9 +43,7 @@ back :: proc(k: int) {
     }
 }
 
-// Entry point
 main :: proc() {
-
     FONT_SIZE  :: 60
     FONT_COLOR :: rl.GRAY
     rl.InitWindow(800, 450, "Odin Test")
