@@ -1,68 +1,71 @@
 package main
 
 import "core:c"
-import "core:strconv"
-import "core:strings"
+import "core:fmt"
 import rl "vendor:raylib"
 
-stack: [10]int
-N :: 3
-perms: [dynamic]cstring
-
-ret_perm :: proc(k: int) -> cstring {
-    tmp: string = ""
-    for i := 1; i <= N; i += 1 {
-        buf: [1]byte // Only one byte becase we are working with digits (0 <= k <= 9)
-        tmp = strings.concatenate({tmp, strconv.itoa(buf[:], stack[i])})
-    }
-    return strings.clone_to_cstring(tmp)
+snake: [dynamic]snake_part
+snake_part :: struct {
+    x, y, dx, dy: c.int,
 }
 
-solution :: proc(k: int) -> bool {
-    return k == N
+WWIDTH :: 1000
+WHEIGHT :: 600
+SSIZE :: 20
+
+init_snake :: proc(k: i32) {
+    for i in 0 ..< k {
+        append(&snake, snake_part {WWIDTH / 2 - k * SSIZE, WHEIGHT / 2, 1, 0})
+    }
 }
 
-valid :: proc(k: int) -> bool {
-    for i := 1; i < k; i += 1 {
-        if stack[i] == stack[k] {
-            return false
-        }
+shift :: proc(new_head: snake_part) {
+    new_snake: [dynamic]snake_part
+    append(&new_snake, new_head)
+    for i in 0 ..< len(snake) - 1 {
+        append(&new_snake, snake[i])
     }
-    return true
-}
-
-back :: proc(k: int) {
-    for i := 1; i <= N; i += 1 {
-        stack[k] = i;
-        if valid(k) {
-            if solution(k) {
-                append(&perms, ret_perm(k))
-            }
-            else do back(k + 1)
-        }
-    }
+    snake = new_snake
 }
 
 main :: proc() {
-    FONT_SIZE  :: 60
-    FONT_COLOR :: rl.GRAY
-    rl.InitWindow(800, 450, "Odin Test")
-
-    back(1)
-
+    init_snake(5)
+    rl.InitWindow(WWIDTH, WHEIGHT, "Jormungandr")
+    rl.SetTargetFPS(15)
     for !rl.WindowShouldClose() {
-        posX: c.int = 345
-        posY: c.int = 50
-
         rl.BeginDrawing()
         rl.ClearBackground(rl.RAYWHITE)
-        
-        for i := 0; i < len(perms); i += 1 {
-            rl.DrawText(perms[i], posX, posY + FONT_SIZE * cast(i32)i, FONT_SIZE, FONT_COLOR)
+
+        for i in 0 ..< len(snake) {
+            snake[i].x += snake[i].dx
+            snake[i].y += snake[i].dy
         }
+        for i in 0 ..< len(snake) {
+            rl.DrawRectangle(snake[i].x, snake[i].y, SSIZE, SSIZE, rl.GREEN)
+        }
+
+        new_head := snake_part {snake[0].x + SSIZE * snake[0].dx, snake[0].y + SSIZE * snake[0].dy, snake[0].dx, snake[0].dy}
+        if rl.IsKeyPressed(rl.KeyboardKey.W) {
+            new_head.dx = 0
+            new_head.dy = -1
+        }
+        else if rl.IsKeyPressed(rl.KeyboardKey.S) {
+            new_head.dx = 0
+            new_head.dy = 1
+        }
+        else if rl.IsKeyPressed(rl.KeyboardKey.A) {
+            new_head.dx = -1
+            new_head.dy = 0
+        }
+        else if rl.IsKeyPressed(rl.KeyboardKey.D) {
+            new_head.dx = 1
+            new_head.dy = 0
+        }
+        shift(new_head)
 
         rl.EndDrawing()
     }
 
+    delete(snake)
     rl.CloseWindow()
 }
