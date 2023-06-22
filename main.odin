@@ -29,8 +29,8 @@ init_snake :: proc(k: i32) {
 
 spawn_food :: proc() {
     my_rand := rand.create(u64(time.now()._nsec))
-    food.x = abs(i32(rand.uint64(&my_rand)) % WWIDTH)
-    food.y = abs(i32(rand.uint64(&my_rand)) % WHEIGHT)
+    food.x = abs(i32(rand.uint64(&my_rand)) % (WWIDTH - SSIZE))
+    food.y = abs(i32(rand.uint64(&my_rand)) % (WHEIGHT - SSIZE))
 }
  
 shift :: proc(new_head: SnakePart) {
@@ -46,21 +46,28 @@ distance :: proc(h: SnakePart, f: Food) -> f32 {
     return math.sqrt_f32(f32((h.x - f.x) * (h.x - f.x) + (h.y - f.y) * (h.y - f.y)))
 }
 
+fit :: proc(val: ^c.int, limit: i32) {
+    if val^ > limit do val^ = 0
+    else if val^ < 0 do val^ = limit
+}
+
 main :: proc() {
-    init_snake(5)
+    init_snake(1)
     spawn_food()
 
     rl.InitWindow(WWIDTH, WHEIGHT, "Jormungandr")
     rl.SetTargetFPS(15)
     for !rl.WindowShouldClose() {
         rl.BeginDrawing()
-        rl.ClearBackground(rl.RAYWHITE)
+        rl.ClearBackground(rl.GRAY)
 
         for i in 0 ..< len(snake) {
             snake[i].x += snake[i].dx
             snake[i].y += snake[i].dy
         }
         for i in 0 ..< len(snake) {
+            fit(&snake[i].x, WWIDTH)
+            fit(&snake[i].y, WHEIGHT)
             rl.DrawRectangle(snake[i].x, snake[i].y, SSIZE, SSIZE, rl.GREEN)
         }
 
@@ -84,7 +91,10 @@ main :: proc() {
         shift(new_head)
 
         rl.DrawRectangle(food.x, food.y, SSIZE - 5, SSIZE - 5, rl.RED)
-        if distance(snake[0], food) < SSIZE do spawn_food() 
+        if distance(snake[0], food) < SSIZE {
+            spawn_food()
+            append(&snake, snake[len(snake)-1])
+        }
 
         rl.EndDrawing()
     }
