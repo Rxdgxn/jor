@@ -5,6 +5,8 @@ import "core:fmt"
 import "core:math"
 import "core:math/rand"
 import "core:time"
+import "core:strings"
+import "core:strconv"
 import rl "vendor:raylib"
 
 snake: [dynamic]SnakePart
@@ -20,6 +22,7 @@ Food :: struct {
 WWIDTH :: 1000
 WHEIGHT :: 600
 SSIZE :: 20
+FSIZE :: SSIZE
 
 init_snake :: proc(k: i32) {
     for i in 0 ..< k {
@@ -48,11 +51,19 @@ distance :: proc(h: SnakePart, f: Food) -> f32 {
 
 fit :: proc(val: ^c.int, limit: i32) {
     if val^ > limit do val^ = 0
-    else if val^ < 0 do val^ = limit
+    else if val^ < -SSIZE do val^ = limit
+}
+
+convert :: proc(x: i32) -> cstring {
+    buf: [4]byte
+    tmp := ""
+    tmp = strings.concatenate({tmp, strconv.itoa(buf[:], int(x))})
+    return strings.clone_to_cstring(tmp)
 }
 
 main :: proc() {
-    init_snake(1)
+    length: i32 = 1
+    init_snake(length)
     spawn_food()
 
     rl.InitWindow(WWIDTH, WHEIGHT, "Jormungandr")
@@ -92,9 +103,13 @@ main :: proc() {
 
         rl.DrawRectangle(food.x, food.y, SSIZE - 5, SSIZE - 5, rl.RED)
         if distance(snake[0], food) < SSIZE {
+            length += 1
             spawn_food()
             append(&snake, snake[len(snake)-1])
         }
+
+        rl.DrawText("LENGTH:", FSIZE, FSIZE, FSIZE, rl.BLACK)
+        rl.DrawText(convert(length), FSIZE * 6, FSIZE, FSIZE, rl.BLACK)
 
         rl.EndDrawing()
     }
