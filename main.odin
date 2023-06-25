@@ -73,10 +73,6 @@ main :: proc() {
         rl.ClearBackground(rl.GRAY)
 
         for i in 0 ..< len(snake) {
-            snake[i].x += snake[i].dx
-            snake[i].y += snake[i].dy
-        }
-        for i in 0 ..< len(snake) {
             fit(&snake[i].x, WWIDTH)
             fit(&snake[i].y, WHEIGHT)
             rl.DrawRectangle(snake[i].x, snake[i].y, SSIZE, SSIZE, rl.GREEN)
