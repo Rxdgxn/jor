@@ -14,7 +14,7 @@ SnakePart :: struct {
     x, y: c.int,
 }
 
-WIN_WIDTH :: 1000
+WIN_WIDTH :: 600
 WIN_HEIGHT :: 600
 SNAKE_SIZE :: 20
 FONT_SIZE :: SNAKE_SIZE
@@ -96,6 +96,12 @@ main :: proc() {
             dx = 1
             dy = 0
         }
+        for i in 1 ..< len(snake) {
+            if snake[i] == new_head {
+                over = true
+                break
+            }
+        }
         shift(new_head)
 
         rl.DrawTexture(food, food_x, food_y, rl.WHITE)
@@ -109,13 +115,6 @@ main :: proc() {
         rl.DrawText(convert(length), FONT_SIZE * 6, FONT_SIZE, FONT_SIZE, rl.BLACK)
 
         rl.EndDrawing()
-
-        for i in 2 ..< len(snake) {
-            if snake[i] == snake[0] {
-                over = true
-                break
-            }
-        }
     }
 
     delete(snake)
