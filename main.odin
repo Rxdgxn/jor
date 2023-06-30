@@ -62,17 +62,21 @@ main :: proc() {
     length: i32 = 1
     init_snake(length)
     spawn_food()
+    over := false
 
     rl.InitWindow(WIN_WIDTH, WIN_HEIGHT, "Jormungandr")
+    snake_piece := rl.LoadTexture("res/snake.png")
+    food := rl.LoadTexture("res/food.png");
     rl.SetTargetFPS(15)
-    for !rl.WindowShouldClose() {
+
+    for !rl.WindowShouldClose() && !over {
         rl.BeginDrawing()
         rl.ClearBackground(rl.GRAY)
 
         for i in 0 ..< len(snake) {
             fit(&snake[i].x, WIN_WIDTH)
             fit(&snake[i].y, WIN_HEIGHT)
-            rl.DrawRectangle(snake[i].x, snake[i].y, SNAKE_SIZE, SNAKE_SIZE, rl.GREEN)
+            rl.DrawTexture(snake_piece, snake[i].x, snake[i].y, rl.WHITE)
         }
 
         new_head := SnakePart {snake[0].x + SNAKE_SIZE * dx, snake[0].y + SNAKE_SIZE * dy}
@@ -94,7 +98,7 @@ main :: proc() {
         }
         shift(new_head)
 
-        rl.DrawRectangle(food_x, food_y, SNAKE_SIZE - 5, SNAKE_SIZE - 5, rl.RED)
+        rl.DrawTexture(food, food_x, food_y, rl.WHITE)
         if distance() < SNAKE_SIZE {
             length += 1
             spawn_food()
@@ -105,8 +109,17 @@ main :: proc() {
         rl.DrawText(convert(length), FONT_SIZE * 6, FONT_SIZE, FONT_SIZE, rl.BLACK)
 
         rl.EndDrawing()
+
+        for i in 2 ..< len(snake) {
+            if snake[i] == snake[0] {
+                over = true
+                break
+            }
+        }
     }
 
     delete(snake)
+    rl.UnloadTexture(snake_piece)
+    rl.UnloadTexture(food)
     rl.CloseWindow()
 }
