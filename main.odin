@@ -28,8 +28,10 @@ init_snake :: proc(k: i32) {
 
 spawn_food :: proc() {
     my_rand := rand.create(u64(time.now()._nsec))
-    food_x = abs(i32(rand.uint64(&my_rand)) % (WIN_WIDTH - SNAKE_SIZE))
-    food_y = abs(i32(rand.uint64(&my_rand)) % (WIN_HEIGHT - SNAKE_SIZE))
+    food_x = abs(i32(rand.uint64(&my_rand)) % (WIN_WIDTH - 2 * SNAKE_SIZE))
+    food_x = (food_x / SNAKE_SIZE + 1) * SNAKE_SIZE
+    food_y = abs(i32(rand.uint64(&my_rand)) % (WIN_HEIGHT - 2 * SNAKE_SIZE))
+    food_y = (food_y / SNAKE_SIZE + 1) * SNAKE_SIZE
 }
  
 shift :: proc(new_head: SnakePart) {
@@ -46,8 +48,8 @@ distance :: proc() -> f32 {
 }
 
 fit :: proc(val: ^c.int, limit: i32) {
-    if val^ > limit do val^ = 0
-    else if val^ < -SNAKE_SIZE do val^ = limit
+    if val^ > limit - SNAKE_SIZE do val^ = 0
+    else if val^ < 0 do val^ = limit
 }
 
 convert :: proc(x: i32) -> cstring {
