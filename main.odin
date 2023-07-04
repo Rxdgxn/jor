@@ -1,7 +1,6 @@
 package main
 
 import "core:c"
-import "core:fmt"
 import "core:math"
 import "core:math/rand"
 import "core:time"
@@ -54,9 +53,14 @@ fit :: proc(val: ^c.int, limit: i32) {
 
 convert :: proc(x: i32) -> cstring {
     buf: [4]byte
-    tmp := ""
-    tmp = strings.concatenate({tmp, strconv.itoa(buf[:], int(x))})
-    return strings.clone_to_cstring(tmp)
+    return strings.clone_to_cstring(strconv.itoa(buf[:], int(x)))
+}
+
+contains :: proc() -> bool {
+    for i in 0 ..< len(snake) {
+        if snake[i].x == food_x && snake[i].y == food_y do return true
+    }
+    return false;
 }
 
 main :: proc() {
@@ -110,6 +114,9 @@ main :: proc() {
         if distance() < SNAKE_SIZE {
             length += 1
             spawn_food()
+            for contains() {
+                spawn_food()
+            }
             append(&snake, snake[len(snake)-1])
         }
 
