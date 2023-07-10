@@ -2,7 +2,6 @@ package main
 
 import "core:c"
 import "core:math"
-import "core:math/rand"
 import "core:time"
 import "core:strings"
 import "core:strconv"
@@ -26,11 +25,10 @@ init_snake :: proc(k: i32) {
 }
 
 spawn_food :: proc() {
-    my_rand := rand.create(u64(time.now()._nsec))
-    food_x = abs(i32(rand.uint64(&my_rand)) % (WIN_WIDTH - 2 * SNAKE_SIZE))
-    food_x = (food_x / SNAKE_SIZE + 1) * SNAKE_SIZE
-    food_y = abs(i32(rand.uint64(&my_rand)) % (WIN_HEIGHT - 2 * SNAKE_SIZE))
-    food_y = (food_y / SNAKE_SIZE + 1) * SNAKE_SIZE
+	food_x = rl.GetRandomValue(SNAKE_SIZE, WIN_WIDTH - SNAKE_SIZE)
+	food_x = (food_x / SNAKE_SIZE + 1) * SNAKE_SIZE
+	food_y = rl.GetRandomValue(SNAKE_SIZE, WIN_HEIGHT - SNAKE_SIZE)
+	food_y = (food_y / SNAKE_SIZE + 1) * SNAKE_SIZE
 }
  
 shift :: proc(new_head: SnakePart) {
@@ -60,7 +58,7 @@ contains :: proc() -> bool {
     for i in 0 ..< len(snake) {
         if snake[i].x == food_x && snake[i].y == food_y do return true
     }
-    return false;
+    return false
 }
 
 main :: proc() {
@@ -72,7 +70,7 @@ main :: proc() {
 
     rl.InitWindow(WIN_WIDTH, WIN_HEIGHT, "Jormungandr")
     snake_piece := rl.LoadTexture("res/snake.png")
-    food := rl.LoadTexture("res/food.png");
+    food := rl.LoadTexture("res/food.png")
     rl.SetTargetFPS(15)
 
     for !rl.WindowShouldClose() && !over {
