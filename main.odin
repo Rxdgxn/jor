@@ -25,9 +25,9 @@ init_snake :: proc(k: i32) {
 }
 
 spawn_food :: proc() {
-	food_x = rl.GetRandomValue(SNAKE_SIZE, WIN_WIDTH - SNAKE_SIZE)
+	food_x = rl.GetRandomValue(0, WIN_WIDTH - SNAKE_SIZE)
 	food_x = (food_x / SNAKE_SIZE + 1) * SNAKE_SIZE
-	food_y = rl.GetRandomValue(SNAKE_SIZE, WIN_HEIGHT - SNAKE_SIZE)
+	food_y = rl.GetRandomValue(0, WIN_HEIGHT - SNAKE_SIZE)
 	food_y = (food_y / SNAKE_SIZE + 1) * SNAKE_SIZE
 }
  
@@ -49,7 +49,7 @@ fit :: proc(val: ^c.int, limit: i32) {
     else if val^ < 0 do val^ = limit
 }
 
-convert :: proc(x: i32) -> cstring {
+to_string :: proc(x: i32) -> cstring {
     buf: [4]byte
     return strings.clone_to_cstring(strconv.itoa(buf[:], int(x)))
 }
@@ -119,7 +119,7 @@ main :: proc() {
         }
 
         rl.DrawText("LENGTH:", FONT_SIZE, FONT_SIZE, FONT_SIZE, rl.BLACK)
-        rl.DrawText(convert(length), FONT_SIZE * 6, FONT_SIZE, FONT_SIZE, rl.BLACK)
+        rl.DrawText(to_string(length), FONT_SIZE * 6, FONT_SIZE, FONT_SIZE, rl.BLACK)
 
         rl.EndDrawing()
     }
